@@ -64,8 +64,11 @@ class KNearestNeighbor(object):
           is the Euclidean distance between the ith test point and the jth training
           point.
         """
-        num_test = X.shape[0]
-        num_train = self.X_train.shape[0]
+        print("Test: ", X.shape)
+        print("Train: ", self.X_train.shape)
+        
+        num_test = X.shape[0] # 500
+        num_train = self.X_train.shape[0] # 5,000
         dists = np.zeros((num_test, num_train))
         for i in range(num_test):
             for j in range(num_train):
@@ -76,8 +79,12 @@ class KNearestNeighbor(object):
                 # not use a loop over dimension, nor use np.linalg.norm().          #
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+                dists[i,j] = np.sqrt( np.sum( np.square(X[i,:]-self.X_train[j,:]) ) )
+                #dists[i,j] = np.sqrt(np.sum(np.square(X[i,:] - self.X_train[j,:])))
+                #dists[i][j] = np.sqrt(np.sum((X[i] - self.X_train[j])**2))
 
-                pass
+
+                #pass
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -101,7 +108,7 @@ class KNearestNeighbor(object):
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            dists[i,:] = np.sqrt( np.sum( np.square(X[i,:] - self.X_train) ) )
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -149,12 +156,18 @@ class KNearestNeighbor(object):
         - y: A numpy array of shape (num_test,) containing predicted labels for the
           test data, where y[i] is the predicted label for the test point X[i].
         """
-        num_test = dists.shape[0]
-        y_pred = np.zeros(num_test)
-        for i in range(num_test):
+        num_test = dists.shape[0] # //G Yields 500
+        y_pred = np.zeros(num_test) # //G Zeros vector to be filled with the answer
+        for i in range(num_test): # //G Run over the 500 rows of the test data set
             # A list of length k storing the labels of the k nearest neighbors to
             # the ith test point.
             closest_y = []
+            """
+            # //G You need to find the set of K nearest neighbors out of the 500x5000
+            # dists matrix. A distance close to zero indicates that the two images are
+            similar. Therefore you should find the K closests points to zero (i.e. the
+            minimum values in each row of the dists matrix).
+            """
             #########################################################################
             # TODO:                                                                 #
             # Use the distance matrix to find the k nearest neighbors of the ith    #
@@ -163,8 +176,10 @@ class KNearestNeighbor(object):
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            min_indexes = np.argsort(dists[i,:])[:k]
+            
+            for element in min_indexes:
+                closest_y.append(self.y_train[element])
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -175,9 +190,15 @@ class KNearestNeighbor(object):
             # label.                                                                #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
-
+            
+            # 1st Approach
+            #y_pred[i] = np.argmax(np.bincount(closest_y))
+            
+            # 2nd Approach
+            vals,counts = np.unique(closest_y, return_counts=True)
+            index = np.argmax(counts)
+            y_pred[i] = vals[index]
+            
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
