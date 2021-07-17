@@ -108,7 +108,7 @@ class KNearestNeighbor(object):
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            dists[i,:] = np.sqrt( np.sum( np.square(X[i,:] - self.X_train) ) )
+            dists[i,:] = np.sqrt( np.sum( np.square(X[i,:] - self.X_train), axis=1 ) )
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -137,8 +137,13 @@ class KNearestNeighbor(object):
         #       and two broadcast sums.                                         #
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        # Test1:
+        # dists = np.sqrt( np.sum( np.square(X - self.X_train.T), axis=1 ))
+        
+        # Based on: https://stackoverflow.com/questions/32856726/memory-efficient-l2-norm-using-python-broadcasting
+        # Additional source: https://stackoverflow.com/questions/27948363/numpy-broadcast-to-perform-euclidean-distance-vectorized
+        # https://mlxai.github.io/2017/01/03/finding-distances-between-data-points-with-numpy.html
+        dists = np.sqrt( np.sum(X**2, axis=1, keepdims=True) - 2*np.dot(X, self.X_train.T) + np.sum(self.X_train**2, axis=1))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
